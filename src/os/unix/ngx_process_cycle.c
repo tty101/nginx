@@ -698,6 +698,8 @@ ngx_master_process_exit(ngx_cycle_t *cycle)
 static void
 ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
 {
+    ngx_core_conf_t  *ccf;
+
     ngx_int_t worker = (intptr_t) data;
 
     ngx_process = NGX_PROCESS_WORKER;
@@ -733,9 +735,10 @@ ngx_worker_process_cycle(ngx_cycle_t *cycle, void *data)
 
             if (!ngx_exiting) {
                 ngx_exiting = 1;
+                ccf = (ngx_core_conf_t *) ngx_get_conf(cycle->conf_ctx, ngx_core_module);
                 ngx_set_shutdown_timer(cycle);
                 ngx_close_listening_sockets(cycle);
-                ngx_close_idle_connections(cycle);
+                ngx_close_idle_connections(cycle, ccf->shutdown_idle_delay);
                 ngx_event_process_posted(cycle, &ngx_posted_events);
             }
         }

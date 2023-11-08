@@ -16,6 +16,7 @@ static ngx_int_t ngx_init_zone_pool(ngx_cycle_t *cycle,
 static ngx_int_t ngx_test_lockfile(u_char *file, ngx_log_t *log);
 static void ngx_clean_old_cycles(ngx_event_t *ev);
 static void ngx_shutdown_timer_handler(ngx_event_t *ev);
+static void ngx_shutdown_idle_timer_handler(ngx_event_t *ev);
 
 
 volatile ngx_cycle_t  *ngx_cycle;
@@ -24,6 +25,7 @@ ngx_array_t            ngx_old_cycles;
 static ngx_pool_t     *ngx_temp_pool;
 static ngx_event_t     ngx_cleaner_event;
 static ngx_event_t     ngx_shutdown_event;
+static ngx_event_t     ngx_shutdown_idle_event;
 
 ngx_uint_t             ngx_test_config;
 ngx_uint_t             ngx_dump_config;
@@ -1467,4 +1469,31 @@ ngx_shutdown_timer_handler(ngx_event_t *ev)
 
         c[i].read->handler(c[i].read);
     }
+}
+
+
+void
+ngx_set_shutdown_idle_timer(ngx_cycle_t *cycle, ngx_msec_t shutdown_delay)
+{
+    if (shutdown_delay) {
+        ngx_shutdown_idle_event.handler = ngx_shutdown_idle_timer_handler;
+        ngx_shutdown_idle_event.data = cycle;
+        ngx_shutdown_idle_event.log = cycle->log;
+        ngx_shutdown_idle_event.cancelable = 1;
+
+        ngx_add_timer(&ngx_shutdown_idle_event, shutdown_delay);
+    }
+}
+
+
+static void
+ngx_shutdown_idle_timer_handler(ngx_event_t *ev)
+{
+    ngx_cycle_t *cycle;
+
+    cycle = ev->data;
+
+    ngx_log_debug0(NGX_LOG_DEBUG_CORE, ev->log, 0, "shutdown idle delay timer");
+
+    ngx_close_idle_connections(cycle, 0);
 }

@@ -705,6 +705,7 @@ syn keyword ngxDirective contained worker_processes
 syn keyword ngxDirective contained worker_rlimit_core
 syn keyword ngxDirective contained worker_rlimit_nofile
 syn keyword ngxDirective contained worker_shutdown_timeout
+syn keyword ngxDirective contained worker_shutdown_idle_delay
 syn keyword ngxDirective contained working_directory
 syn keyword ngxDirective contained xclient
 syn keyword ngxDirective contained xml_entities

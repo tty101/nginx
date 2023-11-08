@@ -1427,7 +1427,7 @@ ngx_drain_connections(ngx_cycle_t *cycle)
 
 
 void
-ngx_close_idle_connections(ngx_cycle_t *cycle)
+ngx_close_idle_connections(ngx_cycle_t *cycle, ngx_msec_t shutdown_delay)
 {
     ngx_uint_t         i;
     ngx_connection_t  *c;
@@ -1439,10 +1439,15 @@ ngx_close_idle_connections(ngx_cycle_t *cycle)
         /* THREAD: lock */
 
         if (c[i].fd != (ngx_socket_t) -1 && c[i].idle) {
+            if (shutdown_delay && c[i].shutdown_delay) {
+                continue;
+            }
             c[i].close = 1;
             c[i].read->handler(c[i].read);
         }
     }
+
+    ngx_set_shutdown_idle_timer(cycle, shutdown_delay);
 }
 
 

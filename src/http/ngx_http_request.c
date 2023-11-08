@@ -3282,6 +3282,7 @@ ngx_http_set_keepalive(ngx_http_request_t *r)
     r->http_state = NGX_HTTP_KEEPALIVE_STATE;
 #endif
 
+    c->shutdown_delay = 1;
     c->idle = 1;
     ngx_reusable_connection(c, 1);
 

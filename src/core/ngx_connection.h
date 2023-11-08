@@ -183,6 +183,7 @@ struct ngx_connection_s {
     unsigned            idle:1;
     unsigned            reusable:1;
     unsigned            close:1;
+    unsigned            shutdown_delay:1;
     unsigned            shared:1;
 
     unsigned            sendfile:1;
@@ -222,7 +223,7 @@ ngx_int_t ngx_open_listening_sockets(ngx_cycle_t *cycle);
 void ngx_configure_listening_sockets(ngx_cycle_t *cycle);
 void ngx_close_listening_sockets(ngx_cycle_t *cycle);
 void ngx_close_connection(ngx_connection_t *c);
-void ngx_close_idle_connections(ngx_cycle_t *cycle);
+void ngx_close_idle_connections(ngx_cycle_t *cycle, ngx_msec_t shutdown_delay);
 ngx_int_t ngx_connection_local_sockaddr(ngx_connection_t *c, ngx_str_t *s,
     ngx_uint_t port);
 ngx_int_t ngx_tcp_nodelay(ngx_connection_t *c);

@@ -762,9 +762,10 @@ failed:
 static ngx_thread_value_t __stdcall
 ngx_worker_thread(void *data)
 {
-    ngx_int_t     n;
-    ngx_time_t   *tp;
-    ngx_cycle_t  *cycle;
+    ngx_int_t         n;
+    ngx_time_t       *tp;
+    ngx_cycle_t      *cycle;
+    ngx_core_conf_t  *ccf;
 
     tp = ngx_timeofday();
     srand((ngx_pid << 16) ^ (unsigned) tp->sec ^ tp->msec);
@@ -801,9 +802,10 @@ ngx_worker_thread(void *data)
 
             if (!ngx_exiting) {
                 ngx_exiting = 1;
+                ccf = (ngx_core_conf_t *) ngx_get_conf(cycle->conf_ctx, ngx_core_module);
                 ngx_set_shutdown_timer(cycle);
                 ngx_close_listening_sockets(cycle);
-                ngx_close_idle_connections(cycle);
+                ngx_close_idle_connections(cycle, ccf->shutdown_idle_delay);
                 ngx_event_process_posted(cycle, &ngx_posted_events);
             }
         }
